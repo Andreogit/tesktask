@@ -3,11 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:task/consts/app_colors.dart';
 import 'package:task/consts/app_fonts.dart';
-import 'package:task/src/bloc/tab_index_cubit.dart';
+import 'package:task/src/bloc/tab_index_cubit/tab_index_cubit.dart';
 
 class GlobalBottomNav extends StatelessWidget {
-  const GlobalBottomNav({Key? key, required this.activeItemIndex}) : super(key: key);
-  final int activeItemIndex;
+  const GlobalBottomNav({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
