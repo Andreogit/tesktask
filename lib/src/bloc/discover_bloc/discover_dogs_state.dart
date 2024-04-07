@@ -19,6 +19,9 @@ final class DiscoverDogsLoaded extends DiscoverDogsState {
   final List<Dog> dogs;
 
   const DiscoverDogsLoaded({required this.dogs});
+
+  @override
+  List<Object> get props => [dogs];
 }
 
 final class DiscoverDogsLoading extends DiscoverDogsState {}

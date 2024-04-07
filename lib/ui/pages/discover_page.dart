@@ -33,22 +33,22 @@ class DiscoverPage extends StatelessWidget {
                           child: const Text("discover new dogs", style: AppFonts.boldS16)),
                     ),
                     const SizedBox(height: 20),
-                    GridView.count(
-                      shrinkWrap: true,
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 20,
-                      crossAxisCount: 4,
-                      children: state.dogs
-                          .map(
-                            (dog) => GestureDetector(
-                              onTap: () => context.read<DiscoverDogsBloc>().add(GetRandomDogsEvent()),
-                              child: Image.network(
+                    GestureDetector(
+                      onTap: () => context.read<DiscoverDogsBloc>().add(GetRandomDogsEvent()),
+                      child: GridView.count(
+                        shrinkWrap: true,
+                        mainAxisSpacing: 6,
+                        crossAxisSpacing: 6,
+                        crossAxisCount: 4,
+                        children: state.dogs
+                            .map(
+                              (dog) => Image.network(
                                 dog.imageUrl,
                                 fit: BoxFit.cover,
                               ),
-                            ),
-                          )
-                          .toList(),
+                            )
+                            .toList(),
+                      ),
                     )
                   ],
                 );

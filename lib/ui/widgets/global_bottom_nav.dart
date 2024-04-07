@@ -11,7 +11,7 @@ class GlobalBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: kBottomNavigationBarHeight + MediaQuery.of(context).padding.bottom + 10,
+      height: kBottomNavigationBarHeight + MediaQuery.of(context).padding.bottom,
       color: Colors.transparent,
       child: const Row(
         children: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppFonts{
   static const TextStyle mediumS16 = TextStyle(
@@ -20,6 +21,11 @@ class AppFonts{
     fontFamily: "ParitySans",
     fontSize: 12,
     fontWeight: FontWeight.bold,
+  );
+
+  static TextStyle alternateS30 = GoogleFonts.splineSans(
+    fontSize: 30,
+    fontWeight: FontWeight.w700,
   );
 
 }
