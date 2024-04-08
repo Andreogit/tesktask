@@ -6,9 +6,11 @@ import 'package:equatable/equatable.dart';
 class Dog extends Equatable {
   final String id;
   final String imageUrl;
+  final String? name;
   const Dog({
     required this.id,
     required this.imageUrl,
+    this.name,
   });
 
   @override
@@ -24,10 +26,11 @@ class Dog extends Equatable {
     );
   }
 
-  factory Dog.fromMap(Map<String, dynamic> map) {
+  factory Dog.fromMap(Map<String, dynamic>? map) {
     return Dog(
-      id: map['id'] as String,
-      imageUrl: map['url'] as String,
+      id: map?['id'] ?? "",
+      imageUrl: map?['url'] ?? "",
+      name: (map?['breeds'] as List).isNotEmpty ? map?['breeds']?[0]['name'] ?? "" : "",
     );
   }
 

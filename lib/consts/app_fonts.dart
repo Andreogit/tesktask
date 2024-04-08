@@ -12,6 +12,16 @@ class AppFonts{
     fontSize: 30,
     fontWeight: FontWeight.bold,
   );
+  static const TextStyle boldS42 = TextStyle(
+    fontFamily: "ParitySans",
+    fontSize: 42,
+    fontWeight: FontWeight.bold,
+  );
+  static const TextStyle boldS20 = TextStyle(
+    fontFamily: "ParitySans",
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
   static const TextStyle boldS16 = TextStyle(
     fontFamily: "ParitySans",
     fontSize: 16,
@@ -23,9 +33,13 @@ class AppFonts{
     fontWeight: FontWeight.bold,
   );
 
-  static TextStyle alternateS30 = GoogleFonts.splineSans(
-    fontSize: 30,
+  static TextStyle alternateBoldS40 = GoogleFonts.courierPrime(
+    fontSize: 40,
     fontWeight: FontWeight.w700,
   );
 
+static TextStyle alternateS20 = GoogleFonts.splineSans(
+    fontSize: 20,
+    fontWeight: FontWeight.w500,
+  );
 }

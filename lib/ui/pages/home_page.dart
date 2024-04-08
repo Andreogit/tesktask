@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:task/consts/app_colors.dart';
 import 'package:task/consts/app_fonts.dart';
 import 'package:task/src/bloc/feed_dog_bloc/feed_dog_bloc.dart';
+import 'package:task/ui/widgets/falling_bones_widget.dart';
 import 'package:task/utils/db_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,9 +19,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late Animation dogPositionAnimation;
   late Animation dogTailAnimation;
+  late Animation boneFallAnimation;
   late AnimationController dogAnimationController;
   late AnimationController tailController;
+  Timer? loadImageTimer;
   int portions = 0;
+  bool eaten = false;
+  bool bonesFalling = false;
 
   @override
   void initState() {
@@ -79,6 +86,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void dispose() {
     dogAnimationController.dispose();
     tailController.dispose();
+    loadImageTimer?.cancel();
     super.dispose();
   }
 
@@ -87,16 +95,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Stack(
       children: [
         Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 30),
             Padding(
-              padding: const EdgeInsets.all(40),
+              padding: const EdgeInsets.fromLTRB(40, 40, 40, 120),
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
                   Container(
+                    margin: const EdgeInsets.only(bottom: 32),
                     width: double.infinity,
-                    height: 380,
                     decoration: const BoxDecoration(
                       boxShadow: [
                         BoxShadow(
@@ -108,14 +116,100 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       color: Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
-                    child: Column(children: [
-                      const SizedBox(height: 84),
-                      Center(
-                          child: Text(
-                        portions.toString(),
-                        style: AppFonts.alternateS30,
-                      )),
-                    ]),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 84),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: BlocBuilder<FeedDogBloc, FeedDogState>(
+                            builder: (context, state) {
+                              if (state is FeedDogLoaded) {
+                                return Text(
+                                  state.dog.name ?? "",
+                                  style: AppFonts.boldS30,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                );
+                              }
+                              return const Text(
+                                "",
+                                style: AppFonts.boldS30,
+                              );
+                            },
+                          ),
+                        ),
+                        if (portions > 0)
+                          Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Stack(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
+                                  child: Container(
+                                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.background,
+                                      border: Border.all(
+                                        width: 1.5,
+                                        color: AppColors.lightBlue,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Transform.flip(flipX: true, child: SvgPicture.asset("assets/icons/decoration.svg")),
+                                            const SizedBox(width: 16),
+                                            Column(
+                                              children: [
+                                                const SizedBox(height: 16),
+                                                Text(
+                                                  portions.toString(),
+                                                  style: AppFonts.alternateBoldS40,
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(width: 16),
+                                            SvgPicture.asset("assets/icons/decoration.svg"),
+                                          ],
+                                        ),
+                                        if (eaten)
+                                          Text(
+                                            "Portion eaten",
+                                            style: AppFonts.alternateS20.copyWith(letterSpacing: 1),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                AnimatedOpacity(
+                                  opacity: eaten ? 1 : 0,
+                                  duration: const Duration(milliseconds: 300),
+                                  child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      width: 52,
+                                      height: 52,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppColors.lightBlue,
+                                      ),
+                                      child: SvgPicture.asset(
+                                        "assets/icons/like.svg",
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
                   ),
                   Positioned(
                     top: -64,
@@ -152,16 +246,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                   Positioned(
-                    bottom: -30,
+                    bottom: 0,
                     left: 30,
                     right: 30,
                     child: BlocBuilder<FeedDogBloc, FeedDogState>(
                       builder: (context, state) {
-                        return GestureDetector(
+                        return InkWell(
                           onTap: () async {
                             if (state is! FeedDogLoaded) return;
-                            Future.delayed(const Duration(milliseconds: 1500), () {
+                            if (loadImageTimer?.isActive ?? false) loadImageTimer!.cancel();
+                            loadImageTimer = Timer(const Duration(seconds: 3), () {
                               context.read<FeedDogBloc>().add(GetRandomDog());
+                              setState(() {
+                                bonesFalling = false;
+                              });
                             });
                             if (dogAnimationController.status == AnimationStatus.forward) {
                               dogAnimationController.reverse();
@@ -169,7 +267,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             } else {
                               await DBHelper.incrementPortions();
                               setState(() {
-                                portions = portions + 1;
+                                bonesFalling = true;
+                                eaten = true;
+                                portions += 1;
                               });
                               dogAnimationController.reset();
                               tailController.reset();
@@ -179,7 +279,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           },
                           child: Container(
                             alignment: Alignment.center,
-                            height: 80,
+                            height: 63,
                             width: 50,
                             decoration: BoxDecoration(
                               color: portions > 9 ? AppColors.blue : AppColors.red,
@@ -225,6 +325,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ],
               );
             }),
+        AnimatedOpacity(
+          opacity: bonesFalling ? 1 : 0,
+          duration: const Duration(milliseconds: 500),
+          child: BonesWidget(
+            totalBones: 7,
+            speed: .17,
+            isRunning: bonesFalling,
+          ),
+        ),
       ],
     );
   }

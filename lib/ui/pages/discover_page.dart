@@ -30,7 +30,7 @@ class DiscoverPage extends StatelessWidget {
                             color: AppColors.blue,
                             borderRadius: BorderRadius.all(Radius.circular(12)),
                           ),
-                          child: const Text("discover new dogs", style: AppFonts.boldS16)),
+                          child: Text("discover new dogs".toUpperCase(), style: AppFonts.boldS16)),
                     ),
                     const SizedBox(height: 20),
                     GestureDetector(
